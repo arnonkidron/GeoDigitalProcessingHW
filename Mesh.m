@@ -5,13 +5,15 @@ classdef Mesh
     properties
         Vertices
         Faces
-        Adjacency
+        Adjacency % as directed edges
         numV
+        numE
         numF
         TriangleAreasResult
     end
     
     methods
+        % TODO: Mesh([]) opens a dialog to choose file
         function obj = Mesh(filename)
             % input: path for an OFF file to read from
             % output: a Mesh object 
@@ -58,7 +60,8 @@ classdef Mesh
             v2 = circshift(v1, -obj.numF);
             
             obj.Adjacency = sparse(v1, v2, 1, obj.numV,obj.numV);
-            obj.Adjacency = obj.Adjacency + transpose(obj.Adjacency);
+            obj.numE = nnz(obj.Adjacency + obj.Adjacency') / 2;
+            
             
         end
         
@@ -81,17 +84,18 @@ classdef Mesh
                 colors = "Green";
             end
             
+            figure
+            colorbar
             p = patch('Faces', obj.Faces, 'Vertices', obj.Vertices);
             
             numC = size(colors,1);
-            
-            if(numC == obj.numV)
+            if(numC == obj.numV) % colors for each vertex
                 p.FaceVertexCData = colors;
                 p.FaceColor = 'interp';
-            elseif(numC == obj.numF)
+            elseif(numC == obj.numF) % colors for each face
                 p.FaceVertexCData = colors;
                 p.FaceColor = 'flat';
-            else
+            else % single color for whole mesh
                 p.FaceColor = colors;
             end
             view(3);
@@ -132,6 +136,39 @@ classdef Mesh
             
             vertexAreas = sum(VertexFaceAdjacency, 1)' / 3;
         end
+        
+        
+        % topology measures
+        
+        function genus = CalcGenus(obj)
+            b = CalcBoundaryComponents(obj);
+            chi = obj.numV - obj.numE + obj.numF;
+            genus = (2 - chi - b)/2;
+        end
+        
+        function boundaryEdges = CalcBoundaryEdges(obj)
+            diff_matrix = obj.Adjacency - transpose(obj.Adjacency);
+            boundaryEdges = nnz(diff_matrix)/2;
+        end
+        
+        function boundaryCC = CalcBoundaryComponents(obj)
+            diff_matrix = obj.Adjacency - transpose(obj.Adjacency);
+            diff_matrix = abs(diff_matrix);
+            G = graph(diff_matrix);
+            [~, binsizes] = conncomp(G);
+            boundaryCC = nnz(binsizes > 1);
+        end
+        
+        %interpolants
+        function fFunc = interpolateVtoF(obj, vFunc)
+            
+        end
+        
+        function vFunc = interpolateFtoV(obj, fFunc)
+            
+        end
+        
+        
         
     end
 end
