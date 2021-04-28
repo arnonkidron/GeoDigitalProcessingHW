@@ -6,6 +6,8 @@ classdef Mesh
         Vertices
         Faces
         Adjacency
+        numV
+        numF
         TriangleAreasResult
     end
     
@@ -22,19 +24,17 @@ classdef Mesh
             % skip the first line that says "OFF"
             fgetl(file);
             
-            
-            
-            % read the number of vertices, faces & edges
+            % read the number of vertices, faces into numV, numF
             tmpCell = deal(textscan(file, "%d %d %d", 1));
-            [numV, numF, ~] = deal(tmpCell{:});
+            [obj.numV, obj.numF, ~] = deal(tmpCell{:});
             
             % read the vertices into the matrix 
-            tmpCell = textscan(file, "%f %f %f", numV);
+            tmpCell = textscan(file, "%f %f %f", obj.numV);
             [a,b,c] = deal(tmpCell{:});
             obj.Vertices = [a b c];
             
             % read the faces
-            tmpCell = textscan(file, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d", numF, ...
+            tmpCell = textscan(file, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d", obj.numF, ...
             'CollectOutput',   true, 'EmptyValue', -1 );
             tmpMat = tmpCell{:};
             sizesCol = tmpMat(:,1);
@@ -54,47 +54,60 @@ classdef Mesh
                 disp("Too hard")
                 return
             end
-            v1 = reshape(obj.Faces, [numF * maxFaceSize, 1]);
-            v2 = circshift(v1, -numF);
+            v1 = reshape(obj.Faces, [obj.numF * maxFaceSize, 1]);
+            v2 = circshift(v1, -obj.numF);
             
-            obj.Adjacency = sparse(v1, v2, 1, numV,numV);
+            obj.Adjacency = sparse(v1, v2, 1, obj.numV,obj.numV);
             obj.Adjacency = obj.Adjacency + transpose(obj.Adjacency);
-        end
-        
-        function outputArg = Write(obj, outputFilename)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
             
         end
         
-        function Render(obj, faceColor)
+        function Write(obj, outputFilename)
+            % Exports the Mesh to an OFF file 
+            fid = fopen(outputFilename, 'wt');
+            fprintf(fid, "OFF\n");
+            fprintf(fid, "%d %d %d\n", obj.numV, obj.numF, 0);
+            fprintf(fid, "%g %g %g\n", obj.Vertices');
+            fprintf(fid, "%d %d %d %d\n", [(3 * ones(obj.numF, 1))  (obj.Faces - 1)]');
+            fclose(fid);
+            
+            
+        end
+        
+        function Render(obj, colors)
             % opens a figure of the mesh
             
-            if(isempty(faceColor))
-                faceColor = "Green";
+            if(isempty(colors))
+                colors = "Green";
             end
             
-%             c = obj.Vertices(:,1);
-%             c = c - min(c);
-%             c = c / max(c);
-%             c = [c c c];
+            p = patch('Faces', obj.Faces, 'Vertices', obj.Vertices);
             
-            patch('Faces', obj.Faces, 'Vertices', obj.Vertices, ...
-                'FaceColor', faceColor);
+            numC = size(colors,1);
+            
+            if(numC == obj.numV)
+                p.FaceVertexCData = colors;
+                p.FaceColor = 'interp';
+            elseif(numC == obj.numF)
+                p.FaceVertexCData = colors;
+                p.FaceColor = 'flat';
+            else
+                p.FaceColor = colors;
+            end
             view(3);
             
         end
         
         function triangleAreas = TriangleAreas(obj)
+            % returns the vector of triangle areas
             if(~isempty(obj.TriangleAreasResult))
                 triangleAreas = obj.TriangleAreasResult;
                 return
             end
             
-            numF = size(obj.Faces, 1);
-            obj.TriangleAreasResult = zeros(numF, 1);
+            obj.TriangleAreasResult = zeros(obj.numF, 1);
             
-            for f = 1:numF
+            for f = 1:obj.numF
                 v1 = obj.Vertices(obj.Faces(f,1), :);
                 v2 = obj.Vertices(obj.Faces(f,2), :);
                 v3 = obj.Vertices(obj.Faces(f,3), :);
@@ -106,35 +119,20 @@ classdef Mesh
         end
         
         function vertexAreas = VertexAreas(obj)
+            % return the vector of vertex areas, defined as 1/3 of their
+            % adjacent triangles' areas
             triangleAreas = TriangleAreas(obj);
-            numF = size(obj.Faces, 1);
-            numV = size(obj.Vertices, 1);
             
-            VertexFaceAdjacency = zeros(numF, numV);
-            for v = 1:numV
+            VertexFaceAdjacency = zeros(obj.numF, obj.numV);
+            for v = 1:obj.numV
                 VertexFaceAdjacency(:,v) = any(obj.Faces == v, 2);
             end
             VertexFaceAdjacency = diag(triangleAreas) * ...
                 VertexFaceAdjacency;
             
-            vertexAreas = sum(VertexFaceAdjacency, 2);
+            vertexAreas = sum(VertexFaceAdjacency, 1)' / 3;
         end
         
-        % private functions
-%         function computeEdgeLengths(obj)
-%             for face = 1:size(obj.Faces,1)
-%                 for v = 1:3
-%                     u = v + 1;
-%                     if u == 4
-%                         u = 1;
-%                     end
-%                     vIndex = obj.Faces(f,v);
-%                     uIndex = obj.Faces(f,u);
-%                     e = obj.Vertices(vIndex, :) - obj.Vertices(uIndex, :);
-%                     obj.FacesEdgeLengths(v, face) = norm(e);
-%                 end
-%             end
-%         end
     end
 end
 
