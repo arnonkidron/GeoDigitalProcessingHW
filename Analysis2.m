@@ -15,12 +15,15 @@ for filename = filenames
     analyze2(filename{1});
 end
 
-function analyze2(filename)
+function fig = analyze2(filename)
     mesh = MeshWithoutAreaStuff(filename);
 
     A = mesh.Adjacency + mesh.Adjacency';
     valence = full(sum(A ~= 0, 2));
 
-    Render(mesh, valence);
+    fig = Render(mesh, valence);
     set(colorbar, 'ticks', min(valence):max(valence));
+    
+    [~,name,~] = fileparts(filename);
+    set(fig, 'Name', name);
 end

@@ -76,15 +76,15 @@ classdef MeshWithoutAreaStuff
             
         end
         
-        function Render(obj, colors)
+        function fig = Render(obj, colors)
             % opens a figure of the mesh
             
             if(isempty(colors))
                 colors = "Green";
             end
             
-            figure
-            colorbar
+            fig = figure;
+            colorbar;
             p = patch('Faces', obj.Faces, 'Vertices', obj.Vertices);
             
             numC = size(colors,1);
