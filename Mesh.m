@@ -15,6 +15,8 @@ classdef Mesh < MeshWithoutAreaStuff
            obj = ComputeAreasAndInterpolant(obj);
         end
         
+        % ComputeAreasAndInterpolant
+        
         function obj = ComputeAreasAndInterpolant(obj)
             % compute triangle areas
             obj.TriangleAreas = zeros(obj.numF, 1);

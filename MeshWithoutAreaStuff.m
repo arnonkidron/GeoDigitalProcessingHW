@@ -3,6 +3,7 @@ classdef MeshWithoutAreaStuff
     % implemented with a Shared Vertex Table & Vertex Adjacency Matrix
     
     properties
+        Name
         Vertices
         Faces
         Adjacency % as directed edges
@@ -22,6 +23,8 @@ classdef MeshWithoutAreaStuff
                 filename = fullfile(path, filename);
             end
             file = fopen(filename);
+            
+            [~, obj.Name, ~] = fileparts(filename);
             
             % skip the first line that says "OFF"
             fgetl(file);
@@ -76,7 +79,7 @@ classdef MeshWithoutAreaStuff
             
         end
         
-        function fig = Render(obj, colors)
+        function [fig, p] = Render(obj, colors)
             % opens a figure of the mesh
             
             if(isempty(colors))
@@ -101,6 +104,35 @@ classdef MeshWithoutAreaStuff
             
         end
         
+        function [fig, p] = RenderWireframe(obj, vertexColors)
+            % opens a figure of the mesh
+            
+            if(isempty(vertexColors))
+                vertexColors = "Green";
+            end
+            
+            fig = figure;
+            colorbar;
+            p = patch('Faces', obj.Faces, 'Vertices', obj.Vertices);
+            colormap parula;
+            
+            p.FaceColor = 'c';
+            p.FaceAlpha = 0.1;
+            
+            
+            numC = size(vertexColors,1);
+            if(numC == obj.numV) % colors for each vertex
+                p.FaceVertexCData = vertexColors;
+                p.EdgeColor = 'interp';
+            else % just one color
+                p.EdgeColor = vertexColors;
+            end
+            
+            view(3);
+            
+        end
+        
+        
         % topology measures
         
         function genus = CalcGenus(obj)
@@ -122,6 +154,34 @@ classdef MeshWithoutAreaStuff
             boundaryCC = nnz(binsizes > 1);
         end
         
+        function G = GetWeightedGraph(obj)
+            % returns the graph of vertices, where two vertices are
+            % neighbours iff they have a common edge
+            % the weight are the vertex distances
+            v1 = zeros(obj.numE, 1);
+            v2 = zeros(obj.numE, 1);
+            w = zeros(obj.numE, 1);
+            edgeIndex = 1;
+            
+            [ii,jj,~] = find(obj.Adjacency + obj.Adjacency');
+            
+            for k = 1:length(ii)
+                i = ii(k);
+                j = jj(k);
+                if(i < j) 
+                    continue;
+                end
+                
+                v1(edgeIndex) = i;
+                v2(edgeIndex) = j;
+                w(edgeIndex) = norm(obj.Vertices(i,:) - obj.Vertices(j,:));
+                
+                edgeIndex = edgeIndex + 1;
+            end
+            
+            G = graph(sparse(v1,v2,w, obj.numV,obj.numV), 'lower');
+            
+        end
     end
 end
 
