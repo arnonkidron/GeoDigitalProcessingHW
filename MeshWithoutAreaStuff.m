@@ -19,8 +19,7 @@ classdef MeshWithoutAreaStuff
             
             %open file
             if(isempty(filename))
-                [filename, path] = uigetfile('*.off');
-                filename = fullfile(path, filename);
+                filename = askUserForSingleOFFfile();
             end
             file = fopen(filename);
             

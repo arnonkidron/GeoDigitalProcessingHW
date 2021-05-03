@@ -1,30 +1,18 @@
-% ask the user to select the files to process. He may choose multiple files
-[filenames, paths] = uigetfile('*.off', ...
-    'Select files to process', ...
-    'MultiSelect', 'on');
-filenames = fullfile(paths, filenames);
+urls = askUserForMultipleOFFfiles();
 
-% if the user has selected one file, put it in a cell, so that the code
-% afterwards will be the same
-if(~iscell(filenames))
-    filenames = {filenames};
+for url = urls
+    analyze4(url{1});
 end
 
-% analyze all of the files
-for filename = filenames
-    analyze4(filename{1});
-end
-
-
-function fig = analyze4(filename)
-    mesh = MeshWithoutAreaStuff(filename);
+function fig = analyze4(url)
+    mesh = MeshWithoutAreaStuff(url);
 
     A = mesh.Adjacency - mesh.Adjacency';
     isVBoundary = any(A ~= 0, 2);
     isVnotBoundary = not(isVBoundary);
     
     if(all(isVnotBoundary))
-        [~,name,~] = fileparts(filename);
+        [~,name,~] = fileparts(url);
         disp(name + " has no boundary");
         return;
     end
@@ -35,7 +23,7 @@ function fig = analyze4(filename)
     set(colorbar, 'ticks', min(isVnotBoundary):max(isVnotBoundary));
     colormap bone;
     
-     [~,name,~] = fileparts(filename);
+     [~,name,~] = fileparts(url);
      set(fig, 'Name', name);
 end
 

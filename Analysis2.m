@@ -1,22 +1,11 @@
-% ask the user to select the files to process. He may choose multiple files
-[filenames, paths] = uigetfile('*.off', ...
-    'Select files to process', ...
-    'MultiSelect', 'on');
-filenames = fullfile(paths, filenames);
+urls = askUserForMultipleOFFfiles();
 
-% if the user has selected one file, put it in a cell, so that the code
-% afterwards will be the same
-if(~iscell(filenames))
-    filenames = {filenames};
+for url = urls
+    analyze2(url{1});
 end
 
-% analyze all of the files
-for filename = filenames
-    analyze2(filename{1});
-end
-
-function fig = analyze2(filename)
-    mesh = MeshWithoutAreaStuff(filename);
+function fig = analyze2(url)
+    mesh = MeshWithoutAreaStuff(url);
 
     A = mesh.Adjacency + mesh.Adjacency';
     valence = full(sum(A ~= 0, 2));
@@ -24,6 +13,6 @@ function fig = analyze2(filename)
     fig = Render(mesh, valence);
     set(colorbar, 'ticks', min(valence):max(valence));
     
-    [~,name,~] = fileparts(filename);
+    [~,name,~] = fileparts(url);
     set(fig, 'Name', name);
 end
