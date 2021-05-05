@@ -23,7 +23,6 @@ function fig = analyze4(url)
     set(colorbar, 'ticks', min(isVnotBoundary):max(isVnotBoundary));
     colormap bone;
     
-     [~,name,~] = fileparts(url);
-     set(fig, 'Name', name);
+     set(fig, 'Name', get(fig, 'Name') + " - Analysis4 - boundary edges");
 end
 

@@ -20,14 +20,11 @@ classdef Mesh < MeshWithoutAreaStuff
         function obj = ComputeAreasAndInterpolant(obj)
             % compute triangle areas
             obj.TriangleAreas = zeros(obj.numF, 1);
-            
-            for f = 1:obj.numF
-                v1 = obj.Vertices(obj.Faces(f,1), :);
-                v2 = obj.Vertices(obj.Faces(f,2), :);
-                v3 = obj.Vertices(obj.Faces(f,3), :);
-                
-                obj.TriangleAreas(f) = 0.5 * norm(cross(v2-v1,v3-v1));                
-            end
+
+            v1 = obj.Vertices(obj.Faces(:,1), :);
+            v2 = obj.Vertices(obj.Faces(:,2), :);
+            v3 = obj.Vertices(obj.Faces(:,3), :);
+            obj.TriangleAreas = 0.5 * vecnorm(cross(v2-v1,v3-v1), 2, 2);
             
             % create VertexFaceAdjacency matrix, used to compute vertex areas
             ii = [1:obj.numF 1:obj.numF 1:obj.numF];

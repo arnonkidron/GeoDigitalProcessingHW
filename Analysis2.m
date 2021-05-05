@@ -13,6 +13,5 @@ function fig = analyze2(url)
     fig = Render(mesh, valence);
     set(colorbar, 'ticks', min(valence):max(valence));
     
-    [~,name,~] = fileparts(url);
-    set(fig, 'Name', name);
+    set(fig, 'Name', get(fig, 'Name') + " - Analysis2 - valence");
 end

@@ -78,7 +78,13 @@ classdef MeshWithoutAreaStuff
             
         end
         
-        function [fig, p] = Render(obj, colors)
+        function [fig, p] = Render(obj, colors)    
+            % @param colors: can be either one of the following
+            % * a single color or [] - to paint all faces with that color
+            % * a numeric vector of size obj.numF - to paint each face by its value
+            % * a numeric vector of size obj.numV - to paint each vertex by its
+            % value, and interpolate the fragment colors from the vertices
+        
             % opens a figure of the mesh
             
             if(isempty(colors))
@@ -86,6 +92,7 @@ classdef MeshWithoutAreaStuff
             end
             
             fig = figure;
+            set(fig, 'Name', obj.Name);
             colorbar;
             p = patch('Faces', obj.Faces, 'Vertices', obj.Vertices);
             
@@ -111,6 +118,7 @@ classdef MeshWithoutAreaStuff
             end
             
             fig = figure;
+            set(fig, 'Name', obj.Name);
             colorbar;
             p = patch('Faces', obj.Faces, 'Vertices', obj.Vertices);
             colormap parula;
@@ -153,32 +161,14 @@ classdef MeshWithoutAreaStuff
             boundaryCC = nnz(binsizes > 1);
         end
         
+        
         function G = GetWeightedGraph(obj)
             % returns the graph of vertices, where two vertices are
             % neighbours iff they have a common edge
             % the weight are the vertex distances
-            v1 = zeros(obj.numE, 1);
-            v2 = zeros(obj.numE, 1);
-            w = zeros(obj.numE, 1);
-            edgeIndex = 1;
-            
             [ii,jj,~] = find(obj.Adjacency + obj.Adjacency');
-            
-            for k = 1:length(ii)
-                i = ii(k);
-                j = jj(k);
-                if(i < j) 
-                    continue;
-                end
-                
-                v1(edgeIndex) = i;
-                v2(edgeIndex) = j;
-                w(edgeIndex) = norm(obj.Vertices(i,:) - obj.Vertices(j,:));
-                
-                edgeIndex = edgeIndex + 1;
-            end
-            
-            G = graph(sparse(v1,v2,w, obj.numV,obj.numV), 'lower');
+            ww = vecnorm(obj.Vertices(ii,:) - obj.Vertices(jj,:), 2, 2);
+            G = graph(sparse(ii,jj,ww, obj.numV,obj.numV), 'lower');
             
         end
     end

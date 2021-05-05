@@ -13,8 +13,7 @@ function fig = analyze5(url)
     set(gca,'ButtonDownFcn',@mouseCB5); 
     set(hPatch,'ButtonDownFcn',@mouseCB5);
     
-    [~,name,~] = fileparts(url);
-    set(fig, 'Name', name);
+    set(fig, 'Name', get(fig, 'Name') + " - distances from point");
 end
 
 function [] = mouseCB5(hObject,event)
