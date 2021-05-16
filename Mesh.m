@@ -75,6 +75,51 @@ classdef Mesh < MeshWithoutAreaStuff
             faceFunction = sum(product, 2);
         end
         
+        
+        % HW3: Differential Operators 
+        
+        function gradient = Gradient(obj, vertexFunc)
+            gradient = zeros(obj.numF,3);
+            for f = 1:obj.numF
+                area = obj.TriangleAreas(f);
+                i1 = obj.Faces(f,1);
+                i2 = obj.Faces(f,2);
+                i3 = obj.Faces(f,3);
+                x1 = obj.Vertices(i1,:);
+                x2 = obj.Vertices(i2,:);
+                x3 = obj.Vertices(i3,:);
+                p1 = Mesh.getProjection(x1, x2, x3);
+                p2 = Mesh.getProjection(x2, x3, x1);
+                p3 = Mesh.getProjection(x3, x1, x2);
+                
+         %       nablaB1 = (x1 - p1) / (2*area);
+                nablaB2 = (x2 - p2) / (2*area);
+                nablaB3 = (x3 - p3) / (2*area);
+                
+                % strange
+                nablaB2 = nablaB2 / norm(nablaB2);
+                nablaB2 = nablaB2 * norm(x1 - x3);
+                
+                nablaB3 = nablaB3 / norm(nablaB3);
+                nablaB3 = nablaB3 * norm(x1 - x2);
+                
+                gradient(f,:) = ...
+                    (vertexFunc(i2) - vertexFunc(i1)) * nablaB2 + ...
+                    (vertexFunc(i3) - vertexFunc(i1)) * nablaB3;
+            end
+        end
+        
+        
+    end
+    methods(Static)
+        
+        function p = getProjection(x1, x2, x3)
+            % input: 3 vertices of a triangle, counterclockwise
+            % output: the projection of x1 unto x2x3
+            u = x1 - x2;
+            v = x3 - x2;
+            p = x2 + dot(u, v) / dot(v, v) * v;
+        end   
     end
 end
 

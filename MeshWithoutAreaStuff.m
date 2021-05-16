@@ -139,6 +139,39 @@ classdef MeshWithoutAreaStuff
             
         end
         
+        function [fig, p] = RenderVectorField(obj, func, vectorField)
+            [fig,p] = Render(obj, func);
+          %  alpha clear
+            hold on
+            sizeVectorField = size(vectorField,1);
+            if(sizeVectorField == obj.numV) 
+                % function on vertices
+                quiver3(...
+                    obj.Vertices(:,1), ...
+                    obj.Vertices(:,2), ...
+                    obj.Vertices(:,3), ...
+                    vectorField(:,1), ... 
+                    vectorField(:,2), ... 
+                    vectorField(:,3), ... 
+                    'color', "Red" ...
+                    );
+            elseif(sizeVectorField == obj.numF)
+                % function on faces
+                centers = getTriangleCenters(obj);
+                quiver3(...
+                    centers(:,1), ...
+                    centers(:,2), ...
+                    centers(:,3), ...
+                    vectorField(:,1), ... 
+                    vectorField(:,2), ... 
+                    vectorField(:,3), ... 
+                    'color', "Yellow", ...
+                    'linewidth', 1 ...
+                    );
+            else
+                disp("Incompatible vector field!")
+            end    
+        end
         
         % topology measures
         
@@ -170,6 +203,31 @@ classdef MeshWithoutAreaStuff
             ww = vecnorm(obj.Vertices(ii,:) - obj.Vertices(jj,:), 2, 2);
             G = graph(sparse(ii,jj,ww, obj.numV,obj.numV), 'lower');
             
+        end
+        
+        function valences = GetValences(obj)
+            A = obj.Adjacency + obj.Adjacency';
+            valences = full(sum(A ~= 0, 2));
+        end
+        
+        function center = getTriangleCenter(obj, f)
+            % input: a mesh
+            %        a face index
+            % output: its center point
+            v1 = obj.Vertices(obj.Faces(f, 1), :);
+            v2 = obj.Vertices(obj.Faces(f, 2), :);
+            v3 = obj.Vertices(obj.Faces(f, 3), :);
+
+            center = mean([v1; v2; v3], 1);
+        end
+        
+        function centers = getTriangleCenters(obj)
+            % input: a mesh
+            % output: the center points of all faces
+            centers = zeros(obj.numF, 3);
+            for f = 1:obj.numF
+                centers(f,:) = getTriangleCenter(obj, f);
+            end
         end
     end
 end
