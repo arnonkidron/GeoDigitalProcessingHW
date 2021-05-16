@@ -15,18 +15,19 @@ for url_1 = urls
     
     limit = 10;
     i = 0;
-    for vertexFunction = nullSpace
+    for faceFunction = nullSpace
         i = i + 1;
         if i >= limit
             break
         end
-        faceFunction = interpolateFtoV(mesh, vertexFunction);
-        if(min(faceFunction) == 0 && max(faceFunction) == 0)
-            disp("Failure")
-        end
         
-        fig = Render(mesh, faceFunction);
+        % normalize
+        mag = max(abs(faceFunction));
+        faceFunctionNormalized = faceFunction / mag;
         
+        % render
+        fig = Render(mesh, faceFunctionNormalized);
+        view(2);
         
         
         % adjust colorbar to have 0 in the middle
@@ -35,6 +36,7 @@ for url_1 = urls
         l = max(abs(oldLimits));
         set(cb, 'Limits', [-l l]);
         colormap hot
+        
     end
     if(~isempty(nullSpace))
         break

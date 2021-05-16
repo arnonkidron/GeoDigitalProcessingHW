@@ -4,14 +4,23 @@ avgEdgeLengths = zeros(6,1);
 avgCenterErrors = zeros(6,1);
 for i = 0:5
   %  fprintf("sphere %d\n", i);
-    mesh = Mesh(dir + "sphere_s" + i + ".off");
+    mesh = MeshWithoutAreaStuff(dir + "sphere_s" + i + ".off");
     avgEdgeLengths(i + 1) = CalcAvgEdgeLength(mesh);
     avgCenterErrors(i + 1) = CalcAvgCenterError(mesh);
+    
+    [~, p] = Render(mesh, vecnorm(mesh.Vertices,2,2));
+    p.EdgeAlpha = 0.2 - i / 30;
 end
+
+convergenceQuotient = zeros(5,1);
+for i = 1:5
+    convergenceQuotient(i) = avgCenterErrors(i+1) / avgCenterErrors(i);
+end
+disp(convergenceQuotient);
 
 % plot
 figure
-plot(avgEdgeLengths, avgCenterErrors, 'o- red', 'LineWidth', 2);
+p = plot(avgEdgeLengths, avgCenterErrors, 'o- red', 'LineWidth', 2);
 xlabel("Average Edge Length of Mesh");
 ylabel("Average Triangulation Error of Mesh");
 title("Triangulation Error");
@@ -31,7 +40,7 @@ function center = getTriangleCenter(mesh, f)
     v2 = mesh.Vertices(index2, :);
     v3 = mesh.Vertices(index3, :);
     
-    center = mean([v1; v2; v3], 2);
+    center = mean([v1; v2; v3], 1);
 end
 
 function projection = projectToUnitSphere(p)
@@ -45,6 +54,7 @@ function avgCenterError = CalcAvgCenterError(mesh)
     % input: a mesh that is supposed to approximate the unit sphere
     % output: the average distance between its face centers and their
     % projections onto the unit sphere
+
     totalError = 0;
     for f = 1:mesh.numF
         center = getTriangleCenter(mesh, f);
@@ -55,21 +65,8 @@ function avgCenterError = CalcAvgCenterError(mesh)
 end
 
 function avgEdgeLength = CalcAvgEdgeLength(mesh)
-    symmetric = mesh.Adjacency + mesh.Adjacency';
+    [ii,jj,~] = find(mesh.Adjacency + mesh.Adjacency');
+    edgeLengths = vecnorm(mesh.Vertices(ii,:) - mesh.Vertices(jj,:), 2, 2);
+    avgEdgeLength = mean(edgeLengths);
     
-    [ii,jj,~] = find(symmetric);
-    
-    edgeIndex = 0;
-    edges = zeros(mesh.numE, 1);
-    for k = 1:length(ii)
-        if (ii(k) > jj(k))
-            continue;
-        end
-        edgeIndex = edgeIndex + 1;
-        edges(edgeIndex) = norm(mesh.Vertices(ii(k), :) - mesh.Vertices(jj(k), :));
-    end 
-    
- %   fprintf("min: %d\n max: %d\n avg: %d\n\n\n", min(edges), max(edges), mean(edges));
-    
-    avgEdgeLength = mean(edges);
 end

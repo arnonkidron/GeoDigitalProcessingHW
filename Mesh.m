@@ -29,7 +29,7 @@ classdef Mesh < MeshWithoutAreaStuff
             % create VertexFaceAdjacency matrix, used to compute vertex areas
             ii = [1:obj.numF 1:obj.numF 1:obj.numF];
             jj = reshape(obj.Faces, [3 * obj.numF, 1]);
-            VertexFaceAdjacency = sparse(ii,jj,1);
+            VertexFaceAdjacency = sparse(ii,jj,1, obj.numF, obj.numV);
             
             % compute vertex areas
             
@@ -44,10 +44,15 @@ classdef Mesh < MeshWithoutAreaStuff
            obj.InterpolantFtoV = obj.InterpolantFtoV / 3;
            
            % compute other interpolant
-           obj.InterpolantVtoF = ...
-               sparse(diag(obj.TriangleAreas .^ -1)) * ...
-               obj.InterpolantFtoV' * ...
-               sparse(diag(obj.VertexAreas));
+           obj.InterpolantVtoF = VertexFaceAdjacency / 3;
+           
+           % naive calculation by the HW2 instructions
+%            obj.InterpolantVtoF = ...
+%                sparse(diag(obj.TriangleAreas .^ -1)) * ...
+%                obj.InterpolantFtoV' * ...
+%                sparse(diag(obj.VertexAreas));
+           
+           
             
         end
         
