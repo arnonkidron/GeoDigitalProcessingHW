@@ -144,7 +144,13 @@ classdef MeshWithoutAreaStuff
           %  alpha clear
             hold on
             sizeVectorField = size(vectorField,1);
-            if(sizeVectorField == obj.numV) 
+            
+            if(sizeVectorField == 3*obj.numF)
+                vectorField = reshape(vectorField, [obj.numF, 3]);
+                sizeVectorField = size(vectorField,1);
+            end
+            
+            if(sizeVectorField == obj.numV)
                 % function on vertices
                 quiver3(...
                     obj.Vertices(:,1), ...
@@ -171,6 +177,11 @@ classdef MeshWithoutAreaStuff
             else
                 disp("Incompatible vector field!")
             end    
+        end
+        
+        function [fig, p] = RenderGradient(obj, vertexFunc)
+            g = Gradient(obj, vertexFunc);
+            [fig, p] = RenderVectorField(obj, vertexFunc, g);
         end
         
         % topology measures
