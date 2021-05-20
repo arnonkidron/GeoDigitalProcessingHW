@@ -1,4 +1,4 @@
-classdef Mesh < MeshWithoutAreaStuff
+classdef MeshHW2 < MeshBasic
     % a 3D Mesh
     % implemented with a Shared Vertex Table & Vertex Adjacency Matrix
     
@@ -10,8 +10,8 @@ classdef Mesh < MeshWithoutAreaStuff
     end
     
     methods
-        function obj = Mesh(filename)
-           obj =  obj@MeshWithoutAreaStuff(filename);
+        function obj = MeshHW2(filename)
+           obj =  obj@MeshBasic(filename);
            obj = ComputeAreasAndInterpolant(obj);
         end
         
@@ -106,9 +106,9 @@ classdef Mesh < MeshWithoutAreaStuff
                 x1 = obj.Vertices(obj.Faces(f,1),:);
                 x2 = obj.Vertices(obj.Faces(f,2),:);
                 x3 = obj.Vertices(obj.Faces(f,3),:);
-                p1 = Mesh.getProjection(x1, x2, x3);
-                p2 = Mesh.getProjection(x2, x3, x1);
-                p3 = Mesh.getProjection(x3, x1, x2);
+                p1 = MeshHW2.getProjection(x1, x2, x3);
+                p2 = MeshHW2.getProjection(x2, x3, x1);
+                p3 = MeshHW2.getProjection(x3, x1, x2);
                 
                 Je1 = x1 - p1;
                 Je2 = x2 - p2;
@@ -162,9 +162,9 @@ classdef Mesh < MeshWithoutAreaStuff
                 x1 = obj.Vertices(i1,:);
                 x2 = obj.Vertices(i2,:);
                 x3 = obj.Vertices(i3,:);
-                p1 = Mesh.getProjection(x1, x2, x3);
-                p2 = Mesh.getProjection(x2, x3, x1);
-                p3 = Mesh.getProjection(x3, x1, x2);
+                p1 = MeshHW2.getProjection(x1, x2, x3);
+                p2 = MeshHW2.getProjection(x2, x3, x1);
+                p3 = MeshHW2.getProjection(x3, x1, x2);
                 
                 nablaB1 = (x1 - p1) / (2*area);
                 nablaB2 = (x2 - p2) / (2*area);

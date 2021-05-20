@@ -10,7 +10,7 @@ i = 1;
 
 for url = urls
     [~,fileName,format] = fileparts(url{1});
-    mesh = MeshWithoutAreaStuff(fileName + ".off");
+    mesh = MeshBasic(fileName + ".off");
     
     names{i} = fileName;
     boundary_edges(i) = CalcBoundaryEdges(mesh);

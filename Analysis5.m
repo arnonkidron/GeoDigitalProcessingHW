@@ -5,7 +5,7 @@ for url = urls
 end
 
 function fig = analyze5(url)
-    mesh = MeshWithoutAreaStuff(url);
+    mesh = MeshBasic(url);
 
     [fig, hPatch] = RenderWireframe(mesh, 'Black');
     

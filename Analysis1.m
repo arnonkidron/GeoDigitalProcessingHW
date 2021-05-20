@@ -4,7 +4,7 @@ avgEdgeLengths = zeros(6,1);
 avgCenterErrors = zeros(6,1);
 for i = 0:5
   %  fprintf("sphere %d\n", i);
-    mesh = MeshWithoutAreaStuff(dir + "sphere_s" + i + ".off");
+    mesh = MeshBasic(dir + "sphere_s" + i + ".off");
     avgEdgeLengths(i + 1) = CalcAvgEdgeLength(mesh);
     avgCenterErrors(i + 1) = CalcAvgCenterError(mesh);
     
@@ -21,8 +21,8 @@ disp(convergenceQuotient);
 % plot
 figure
 p = plot(avgEdgeLengths, avgCenterErrors, 'o- red', 'LineWidth', 2);
-xlabel("Average Edge Length of Mesh");
-ylabel("Average Triangulation Error of Mesh");
+xlabel("Average Edge Length of MeshHW2");
+ylabel("Average Triangulation Error of MeshHW2");
 title("Triangulation Error");
 
 

@@ -2,7 +2,7 @@ urls = askUserForMultipleOFFfiles();
 
 for url = urls
     [~,fileName,format] = fileparts(url{1});
-    mesh = Mesh(fileName + ".off");
+    mesh = MeshHW2(fileName + ".off");
     extrema = [min([mesh.TriangleAreas; mesh.VertexAreas]), max([mesh.TriangleAreas; mesh.VertexAreas])];
     myRender(mesh, mesh.TriangleAreas, "Triangle Areas", extrema);
     myRender(mesh, mesh.VertexAreas, "Vertex Areas", extrema);

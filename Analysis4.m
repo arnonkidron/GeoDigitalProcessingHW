@@ -5,7 +5,7 @@ for url = urls
 end
 
 function fig = analyze4(url)
-    mesh = MeshWithoutAreaStuff(url);
+    mesh = MeshBasic(url);
 
     A = mesh.Adjacency - mesh.Adjacency';
     isVBoundary = any(A ~= 0, 2);

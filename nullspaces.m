@@ -1,16 +1,16 @@
 urls = askUserForMultipleOFFfiles();
 
-numMeshes = size(urls,2);
+numMeshHW2es = size(urls,2);
 
-kernelDimFtoV = zeros(numMeshes,1) - 1;
-kernelDimVtoF = zeros(numMeshes,1) - 1;
-name = cell(numMeshes,1);
-V  = zeros(numMeshes,1) - 1;
+kernelDimFtoV = zeros(numMeshHW2es,1) - 1;
+kernelDimVtoF = zeros(numMeshHW2es,1) - 1;
+name = cell(numMeshHW2es,1);
+V  = zeros(numMeshHW2es,1) - 1;
 
 i = 1;
 for url_1 = urls
     url = url_1{1};
-    mesh = MeshWithoutAreaStuff(url);
+    mesh = MeshBasic(url);
     
     [~, name{i}, ~] = fileparts(mesh.Name);
     V(i) = mesh.numV;
@@ -19,7 +19,7 @@ for url_1 = urls
         continue;
     end
     
-    mesh = Mesh(url);
+    mesh = MeshHW2(url);
     
     nullSpace = null(full(mesh.InterpolantFtoV));
     kernelDimFtoV(i) = size(nullSpace,2);

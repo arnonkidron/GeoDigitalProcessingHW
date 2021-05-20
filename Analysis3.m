@@ -2,7 +2,7 @@ urls = askUserForMultipleOFFfiles();
 
 for url_1 = urls
     url = url_1{1};
-    mesh = Mesh(url);
+    mesh = MeshHW2(url);
     nullSpace = null(full(mesh.InterpolantFtoV));
     if(isempty(nullSpace))
         [~,name,~] = fileparts(url);

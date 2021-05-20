@@ -5,7 +5,7 @@ for url = urls
 end
 
 function fig = analyze2(url)
-    mesh = MeshWithoutAreaStuff(url);
+    mesh = MeshBasic(url);
 
     A = mesh.Adjacency + mesh.Adjacency';
     valence = full(sum(A ~= 0, 2));

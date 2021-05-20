@@ -1,4 +1,4 @@
-classdef MeshWithoutAreaStuff
+classdef MeshBasic
     % a 3D Mesh
     % implemented with a Shared Vertex Table & Vertex Adjacency Matrix
     
@@ -13,9 +13,9 @@ classdef MeshWithoutAreaStuff
     end
     
     methods
-        function obj = MeshWithoutAreaStuff(filename)
+        function obj = MeshBasic(filename)
             % input: path for an OFF file to read from
-            % output: a Mesh object 
+            % output: a MeshHW2 object
             
             %open file
             if(isempty(filename))
@@ -67,7 +67,7 @@ classdef MeshWithoutAreaStuff
         end
         
         function Write(obj, outputFilename)
-            % Exports the Mesh to an OFF file 
+            % Exports the MeshHW2 to an OFF file
             fid = fopen(outputFilename, 'wt');
             fprintf(fid, "OFF\n");
             fprintf(fid, "%d %d %d\n", obj.numV, obj.numF, 0);

@@ -1,7 +1,7 @@
 
 dir = "C:\Users\Arnon\Documents\GitHub\GeoDigitalProcessingHW\OFF models\";
 filename = "disk.off";
-mesh = Mesh(dir + filename);
+mesh = MeshHW2(dir + filename);
 
 hat = zeros(mesh.numV,1);
 hat(226) = 1;
