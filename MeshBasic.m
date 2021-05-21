@@ -22,6 +22,9 @@ classdef MeshBasic
                 filename = askUserForSingleOFFfile();
             end
             file = fopen(filename);
+            if(file == -1)
+                error("Fail to open url");
+            end
             
             [~, obj.Name, ~] = fileparts(filename);
             
@@ -84,7 +87,7 @@ classdef MeshBasic
             % * a numeric vector of size obj.numF - to paint each face by its value
             % * a numeric vector of size obj.numV - to paint each vertex by its
             % value, and interpolate the fragment colors from the vertices
-        
+            % @returns: the figre, and the patch
             % opens a figure of the mesh
             
             if(isempty(colors))
@@ -105,6 +108,7 @@ classdef MeshBasic
                 p.FaceColor = 'flat';
             else % single color for whole mesh
                 p.FaceColor = colors;
+                set(colorbar,'visible','off')
             end
             view(3);
             
@@ -139,7 +143,9 @@ classdef MeshBasic
             
         end
         
-        function [fig, p] = RenderVectorField(obj, func, vectorField)
+        function [fig, p, arrows] = RenderVectorField(obj, func, vectorField)
+            % @returns: the figure, the patch
+            % and the quiver object so that the user may change the arrows color as he wish
             [fig,p] = Render(obj, func);
           %  alpha clear
             hold on
@@ -152,7 +158,7 @@ classdef MeshBasic
             
             if(sizeVectorField == obj.numV)
                 % function on vertices
-                quiver3(...
+                arrows = quiver3(...
                     obj.Vertices(:,1), ...
                     obj.Vertices(:,2), ...
                     obj.Vertices(:,3), ...
@@ -164,24 +170,19 @@ classdef MeshBasic
             elseif(sizeVectorField == obj.numF)
                 % function on faces
                 centers = getTriangleCenters(obj);
-                quiver3(...
+                arrows = quiver3(...
                     centers(:,1), ...
                     centers(:,2), ...
                     centers(:,3), ...
                     vectorField(:,1), ... 
                     vectorField(:,2), ... 
                     vectorField(:,3), ... 
-                    'color', "Yellow", ...
+                    'color', "Red", ...
                     'linewidth', 1 ...
                     );
             else
-                disp("Incompatible vector field!")
+                disp("Incsompatible vector field!")
             end    
-        end
-        
-        function [fig, p] = RenderGradient(obj, vertexFunc)
-            g = Gradient(obj, vertexFunc);
-            [fig, p] = RenderVectorField(obj, vertexFunc, g);
         end
         
         % topology measures
