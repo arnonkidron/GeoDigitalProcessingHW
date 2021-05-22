@@ -30,7 +30,7 @@ classdef Mesh < MeshHW2
             
             % Gradient
             EdgeNormals = ComputeEdgeNormals(obj);
-            EdgeNormals = obj.EdgeNormalsMatrix;
+%             EdgeNormals = obj.EdgeNormalsMatrix;
             obj.Grad = sparse(TriangleAreasRepeatedInverse * EdgeNormals) / 2;
             
             % Divergence
