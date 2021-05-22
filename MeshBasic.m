@@ -151,10 +151,15 @@ classdef MeshBasic
             hold on
             sizeVectorField = size(vectorField,1);
             
-            if(sizeVectorField == 3*obj.numF)
-                vectorField = reshape(vectorField, [obj.numF, 3]);
+            if(sizeVectorField == 3*obj.numF || sizeVectorField == 3*obj.numV)
+                vectorField = reshape(vectorField, [sizeVectorField / 3, 3]);
                 sizeVectorField = size(vectorField,1);
             end
+            
+            if any(abs(vecnorm(vectorField ,2,2) - 1) > 0.000001)
+%                disp("wrong");
+            end
+            
             
             if(sizeVectorField == obj.numV)
                 % function on vertices

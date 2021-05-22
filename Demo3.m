@@ -1,8 +1,7 @@
-urls = askUserForMultipleOFFfiles();
-
-for url = urls
+for url = askUserForMultipleOFFfiles()
     mesh = Mesh(url{1});
-    normals = ComputeVertexNormals(mesh);
+    normals = mesh.VertexNormals;
     RenderVectorField(mesh, [], normals);
 end
+
 

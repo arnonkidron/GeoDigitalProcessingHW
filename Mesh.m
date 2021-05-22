@@ -7,14 +7,12 @@ classdef Mesh < MeshHW2
         Laplacian  % |V| x |V|, computed as minus Divergence of the Gradient
         CotLaplacian  % computed by the cotangent formula
         CotangentWeights % for analysis1
-        FaceNormals
-        VertexNormals
     end
     
     methods
         function obj = Mesh(filename)
-           obj =  obj@MeshHW2(filename);
-         %  obj = ComputeDifferentialOperators(obj);
+            obj =  obj@MeshHW2(filename);
+            obj = ComputeDifferentialOperators(obj);
         end
         
         function obj = ComputeDifferentialOperators(obj)
@@ -32,6 +30,7 @@ classdef Mesh < MeshHW2
             
             % Gradient
             EdgeNormals = ComputeEdgeNormals(obj);
+            EdgeNormals = obj.EdgeNormalsMatrix;
             obj.Grad = sparse(TriangleAreasRepeatedInverse * EdgeNormals) / 2;
             
             % Divergence
@@ -49,10 +48,6 @@ classdef Mesh < MeshHW2
         end
         
         function EdgeNormals = ComputeEdgeNormals(obj)
-            
-        end
-        
-        function EdgeNormals = ComputeEdgeNormals2(obj)
             ii = [1:obj.numF;(obj.numF+1):2*obj.numF;(2*obj.numF+1):3*obj.numF];
             ii = repelem(ii, 1,3);
             ii = reshape(ii, [3*3*obj.numF, 1]);
@@ -104,7 +99,7 @@ classdef Mesh < MeshHW2
             EdgeNormals = sparse(ii,jj,vv, 3*obj.numF, obj.numV);
         end
         
-        function Gradient = Gradient(obj, vertexFunc)
+        function Gradient = CalcGradient(obj, vertexFunc)
             % transpose if necessary
             if(size(vertexFunc,1) == 1)
                 vertexFunc = vertexFunc';
@@ -151,7 +146,7 @@ classdef Mesh < MeshHW2
             end
         end
         
-        function Divergence = Divergence(obj, faceVectorField)
+        function Divergence = CalcDivergence(obj, faceVectorField)
             if(size(faceVectorField) == [obj.numF, 3])
                 faceVectorField = reshape(faceVectorField, [3*obj.numF, 1]);
             end
@@ -191,22 +186,10 @@ classdef Mesh < MeshHW2
         end
         
         function [fig, p] = RenderGradient(obj, vertexFunc)
-            g = Gradient(obj, vertexFunc);
+            g = CalcGradient(obj, vertexFunc);
             [fig, p] = RenderVectorField(obj, vertexFunc, g);
         end
         
-        
-        function normals = ComputeFaceNormals(obj)
-            v1 = obj.Vertices(obj.Faces(:,1),:);
-            v2 = obj.Vertices(obj.Faces(:,2),:);
-            v3 = obj.Vertices(obj.Faces(:,3),:);
-            normals = cross(v1 - v2,v2 - v3,2);
-        end
-        
-        function normals = ComputeVertexNormals(obj)
-            normals = obj.VertexFaceAdjacency' * ComputeFaceNormals(obj);
-            normals = normals ./ vecnorm(normals, 2, 2);
-        end
         
     end
     

@@ -1,11 +1,12 @@
-% mesh = Mesh("C:\Users\Arnon\Documents\GitHub\GeoDigitalProcessingHW\OFF models\sphere_s0.off");
-%  
-% vertexFunc = GetValences(mesh);
-% % RenderGradient(MeshHW2, vertexFunc);
-% % 
-% % view(2)
-% % colormap flag
-% % 
+%%
+mesh = Mesh("C:\Users\Arnon\Documents\GitHub\GeoDigitalProcessingHW\OFF models\disk.off");
+ 
+vertexFunc = GetValences(mesh);
+RenderGradient(mesh, vertexFunc);
+
+view(2)
+colormap flag
+
 % 
 % 
 % 
