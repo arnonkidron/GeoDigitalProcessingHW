@@ -6,6 +6,10 @@ classdef Mesh < MeshHW2
         Div  % |V| x 3|F|
         Laplacian  % |V| x |V|, computed as minus Divergence of the Gradient
         CotLaplacian  % computed by the cotangent formula
+        
+        MeanCurvature
+        GaussianCurvature
+        
         CotangentWeights % for analysis1
     end
     
@@ -13,6 +17,7 @@ classdef Mesh < MeshHW2
         function obj = Mesh(filename)
             obj =  obj@MeshHW2(filename);
             obj = ComputeDifferentialOperators(obj);
+            obj = ComputeCurvatures(obj);
         end
         
         function obj = ComputeDifferentialOperators(obj)
@@ -99,6 +104,24 @@ classdef Mesh < MeshHW2
             EdgeNormals = sparse(ii,jj,vv, 3*obj.numF, obj.numV);
         end
         
+        function obj = ComputeCurvatures(obj)
+            % Mean Curvature - very simple
+            obj.MeanCurvature = vecnorm(obj.Laplacian, 2,2);
+            
+            % Gaussian Curvature
+            
+            % put the angles in a |F| x |V| matrix
+            A = ComputeAngles(obj);
+            ii = repmat([1:obj.numF], [1,3]);
+            jj = obj.Faces;
+            B = sparse(ii, jj, A, obj.numF, obj.numV);
+            
+            % compute 
+            sumAngles = sum(B, 1)';
+            curv = 2*pi - sumAngles;
+            obj.GaussianCurvature = curv ./ obj.VertexAreas;
+        end
+        
         function Gradient = CalcGradient(obj, vertexFunc)
             % transpose if necessary
             if(size(vertexFunc,1) == 1)
@@ -157,7 +180,10 @@ classdef Mesh < MeshHW2
             lap = obj.Laplacian * vertexFunc;            
         end
         
-        function laplaceMatrix = LaplacianByCotFormula(obj)
+        function A = ComputeAngles(obj)
+            % @returns the matrix A contains all angles
+            % the 1st column contains the angle of the 1st vertex in every face, etc.
+            
             % compute all edge lengths
             v1 = obj.Vertices(obj.Faces(:,1),:);
             v2 = obj.Vertices(obj.Faces(:,2),:);
@@ -170,8 +196,15 @@ classdef Mesh < MeshHW2
             A1 = (L2.^2 + L3.^2 - L1.^2) ./ (2.*L2.*L3);
             A2 = (L1.^2 + L3.^2 - L2.^2) ./ (2.*L1.*L3);
             A3 = (L1.^2 + L2.^2 - L3.^2) ./ (2.*L1.*L2);
+            
             A = [A1, A2, A3];
+            
+            % finally, apply arccos
             A = acos(A);
+        end
+        
+        function laplaceMatrix = LaplacianByCotFormula(obj)
+            A = ComputeAngles(obj);
             
             % cotangent formula
             I = [obj.Faces(:,1); obj.Faces(:,2); obj.Faces(:,3)];
@@ -182,7 +215,6 @@ classdef Mesh < MeshHW2
             Sn = [-S;-S;S;S];
             
             laplaceMatrix = sparse(In,Jn,Sn, obj.numV,obj.numV); 
-            
         end
         
         function [fig, p] = RenderGradient(obj, vertexFunc)
