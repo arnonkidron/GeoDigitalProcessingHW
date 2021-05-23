@@ -94,6 +94,8 @@ classdef MeshBasic
                 colors = "Green";
             end
             
+            colors = full(colors);
+            
             fig = figure;
             set(fig, 'Name', obj.Name);
             colorbar;

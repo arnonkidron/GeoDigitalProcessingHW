@@ -128,6 +128,11 @@ classdef Mesh < MeshHW2
             Sn = [-S;-S;S;S];
             
             laplaceMatrix = sparse(In,Jn,Sn, obj.numV,obj.numV); 
+            
+            % divide by vertex area
+            VertexAreasInverse = power(obj.VertexAreas, -1);
+            VertexAreasInverse = sparse(diag(VertexAreasInverse));            
+            laplaceMatrix = VertexAreasInverse * laplaceMatrix;
         end
         
         function [fig, p, arrows] = RenderGradient(obj, vertexFunc)
