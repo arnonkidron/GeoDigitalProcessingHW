@@ -80,14 +80,13 @@ classdef MeshHW2 < MeshBasic
             obj.VertexNormals = normals;
             
             % compute edge normals: vectors that are perpendicular to both
-            % face normals and the edges
+            % face normals and the edges. This is the E matrix for HW3
             n1 = cross(v2 - v3, obj.FaceNormals, 2);
             n2 = cross(v3 - v1, obj.FaceNormals, 2);
             n3 = cross(v1 - v2, obj.FaceNormals, 2);
             
             obj.EdgeNormalsMatrix = ComputeEdgeNormals(obj);
             
-            %TODO
             % make edge normals have same norm as their edges
             n1 = n1 ./ vecnorm(n1, 2, 2);
             n2 = n2 ./ vecnorm(n2, 2, 2);
@@ -101,14 +100,14 @@ classdef MeshHW2 < MeshBasic
             ii = repelem(obj.Faces, 1,3);
             jj = reshape(1:3*obj.numF, [obj.numF, 3]);
             jj = repmat(jj, [1,3]);
-            vv = [n1 n2 n3]';
+            vv = [n1 n2 n3];
             
             ii = reshape(ii, [3*3*obj.numF,1]);
             jj = reshape(jj, [3*3*obj.numF,1]);
             vv = reshape(vv, [3*3*obj.numF,1]);
             
             obj.EdgeNormalsMatrix = sparse(jj,ii,vv, 3*obj.numF,obj.numV);
-            return
+            
             
 %             n1 = reshape(n1, [3*obj.numF,1]);
 %             n2 = reshape(n2, [3*obj.numF,1]);
@@ -124,12 +123,12 @@ classdef MeshHW2 < MeshBasic
 %             
 
 
-            for f = 1:obj.numF
-                 fdsdfs = ComputeEdgeNormals(obj);
-                 disp(fdsdfs(f,:));
-                 disp(obj.EdgeNormalsMatrix(f,:));
-            end
-%             disp(ComputeEdgeNormals(obj) - obj.EdgeNormalsMatrix);
+%             for f = 1:obj.numF
+%                  fdsdfs = ComputeEdgeNormals(obj);
+%                  disp(fdsdfs(f,:));
+%                  disp(obj.EdgeNormalsMatrix(f,:));
+%             end
+            disp(norm(ComputeEdgeNormals(obj) - obj.EdgeNormalsMatrix,'fro'));
             
             
         end
