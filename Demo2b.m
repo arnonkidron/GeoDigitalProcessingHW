@@ -1,9 +1,11 @@
-mesh = Mesh([]);
-diff = mesh.laplacian - mesh.cotLaplacian;
-sparse_diff = sparse(diff);
+disp("Frobenius distance between the two laplacian matrices we computed:");
 
-isAntiSymmetric(diff)
-
-function check = isSymmetric(A)
-    check = A == A';
+urls = askUserForMultipleOFFfiles();
+for url = urls
+    mesh = Mesh(url{1});
+    disp([...
+        mesh.Name, ...
+        ": ", ...
+        norm(mesh.Laplacian - LaplacianByCotFormula(mesh), 'fro') ...
+        ]);
 end

@@ -5,7 +5,6 @@ classdef Mesh < MeshHW2
         Grad % 3|F| x |V|
         Div  % |V| x 3|F|
         Laplacian  % |V| x |V|, computed as minus Divergence of the Gradient
-        CotLaplacian  % computed by the cotangent formula
         
         MeanCurvature
         GaussianCurvature
@@ -42,7 +41,7 @@ classdef Mesh < MeshHW2
            
             % Laplacian
             obj.Laplacian = -obj.Div * obj.Grad;
-            obj.CotLaplacian = LaplacianByCotFormula(obj);
+%             obj.CotLaplacian = LaplacianByCotFormula(obj);
             
             % cotangent weights
             obj.CotangentWeights = ...
@@ -53,8 +52,10 @@ classdef Mesh < MeshHW2
         end
         
         function obj = ComputeCurvatures(obj)
-            % Mean Curvature - very simple
+            % Mean Curvature 
             obj.MeanCurvature = vecnorm(obj.Laplacian, 2,2);
+%             signs = sign(dot(obj.Laplacian, obj.VertexNormals ,2));
+%             obj.MeanCurvature = obj.MeanCurvature .* signs;
             
             % Gaussian Curvature
             
@@ -64,8 +65,10 @@ classdef Mesh < MeshHW2
             jj = obj.Faces;
             B = sparse(ii, jj, A, obj.numF, obj.numV);
             
-            % compute 
+            % compute the sum of angles per vertex
             sumAngles = sum(B, 1)';
+            
+            % follow the formula
             curv = 2*pi - sumAngles;
             obj.GaussianCurvature = curv ./ obj.VertexAreas;
         end
