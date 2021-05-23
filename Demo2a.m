@@ -2,10 +2,11 @@
 mesh = Mesh("C:\Users\Arnon\Documents\GitHub\GeoDigitalProcessingHW\OFF models\disk.off");
  
 vertexFunc = GetValences(mesh);
-RenderGradient(mesh, vertexFunc);
+[~, ~, arrows] = RenderGradient(mesh, vertexFunc);
 
 view(2)
 colormap flag
+set(arrows, 'color', 'Yellow');
 
 % 
 % 

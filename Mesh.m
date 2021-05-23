@@ -34,9 +34,8 @@ classdef Mesh < MeshHW2
             VertexAreasInverse = sparse(diag(VertexAreasInverse));
             
             % Gradient
-            EdgeNormals = ComputeEdgeNormals(obj);
-%             EdgeNormals = obj.EdgeNormalsMatrix;
-            obj.Grad = sparse(TriangleAreasRepeatedInverse * EdgeNormals) / 2;
+            obj.Grad = sparse(TriangleAreasRepeatedInverse * obj.EdgeNormalsMatrix) ...
+                / 2;
             
             % Divergence
             obj.Div = -VertexAreasInverse * obj.Grad' * TriangleAreasRepeated;
@@ -47,61 +46,10 @@ classdef Mesh < MeshHW2
             
             % cotangent weights
             obj.CotangentWeights = ...
-                EdgeNormals' * ...
+                obj.EdgeNormalsMatrix' * ...
                 TriangleAreasRepeatedInverse * ...
-                EdgeNormals/ 4;
-        end
-        
-        function EdgeNormals = ComputeEdgeNormals(obj)
-            ii = [1:obj.numF;(obj.numF+1):2*obj.numF;(2*obj.numF+1):3*obj.numF];
-            ii = repelem(ii, 1,3);
-            ii = reshape(ii, [3*3*obj.numF, 1]);
-            
-            jj = repelem(obj.Faces, 1,3);
-            jj = reshape(jj', [3*3*obj.numF,1]);
-            
-            vv = zeros(3*3*obj.numF,1);
-            
-            % TODO: vectorize
-            index = 0;
-            for f = 1:obj.numF
-                x1 = obj.Vertices(obj.Faces(f,1),:);
-                x2 = obj.Vertices(obj.Faces(f,2),:);
-                x3 = obj.Vertices(obj.Faces(f,3),:);
-                p1 = Mesh.getProjection(x1, x2, x3);
-                p2 = Mesh.getProjection(x2, x3, x1);
-                p3 = Mesh.getProjection(x3, x1, x2);
-                
-                Je1 = x1 - p1;
-                Je2 = x2 - p2;
-                Je3 = x3 - p3;
-                
-                Je1 = Je1 / norm(Je1);
-                Je2 = Je2 / norm(Je2);
-                Je3 = Je3 / norm(Je3);
-                
-                Je1 = Je1 * norm(x3-x2);
-                Je2 = Je2 * norm(x3-x1);
-                Je3 = Je3 * norm(x1-x2);
-                
-                vv(index + 1:index + 9) = [Je1 Je2 Je3];
-                index = index + 9;
-               
-                % % what we really meant to do
-%                 EdgeNormals(f,              i1) = Je1(1);
-%                 EdgeNormals(f + obj.numF,   i1) = Je1(2);
-%                 EdgeNormals(f + 2*obj.numF, i1) = Je1(3);
-%                 
-%                 EdgeNormals(f,              i2) = Je2(1);
-%                 EdgeNormals(f + obj.numF,   i2) = Je2(2);
-%                 EdgeNormals(f + 2*obj.numF, i2) = Je2(3);
-%                 
-%                 EdgeNormals(f,              i3) = Je3(1);
-%                 EdgeNormals(f + obj.numF,   i3) = Je3(2);
-%                 EdgeNormals(f + 2*obj.numF, i3) = Je3(3);
-            end
-            
-            EdgeNormals = sparse(ii,jj,vv, 3*obj.numF, obj.numV);
+                obj.EdgeNormalsMatrix ...
+                / 4;
         end
         
         function obj = ComputeCurvatures(obj)
@@ -129,44 +77,6 @@ classdef Mesh < MeshHW2
             end
             
             Gradient = obj.Grad * vertexFunc;
-        end
-        
-        function Gradient = OldGradient(obj, vertexFunc)
-            Gradient = zeros(obj.numF,3);
-            for f = 1:obj.numF
-                area = obj.TriangleAreas(f);
-                i1 = obj.Faces(f,1);
-                i2 = obj.Faces(f,2);
-                i3 = obj.Faces(f,3);
-                x1 = obj.Vertices(i1,:);
-                x2 = obj.Vertices(i2,:);
-                x3 = obj.Vertices(i3,:);
-                p1 = MeshHW2.getProjection(x1, x2, x3);
-                p2 = MeshHW2.getProjection(x2, x3, x1);
-                p3 = MeshHW2.getProjection(x3, x1, x2);
-                
-                nablaB1 = (x1 - p1) / (2*area);
-                nablaB2 = (x2 - p2) / (2*area);
-                nablaB3 = (x3 - p3) / (2*area);
-                
-                % same for nablaB1
-                nablaB1 = nablaB1 / norm(nablaB1);
-                nablaB1 = nablaB1 * norm(x3 - x2);
-                
-                % make nablaB2 the same size as the opposite edge
-                nablaB2 = nablaB2 / norm(nablaB2);
-                nablaB2 = nablaB2 * norm(x1 - x3);
-                
-                % same for nablaB3
-                nablaB3 = nablaB3 / norm(nablaB3);
-                nablaB3 = nablaB3 * norm(x1 - x2);
-
-                Gradient(f,:) = ...
-                    vertexFunc(i1) * nablaB1 + ...
-                    vertexFunc(i2) * nablaB2 + ...
-                    vertexFunc(i3) * nablaB3;
-                
-            end
         end
         
         function Divergence = CalcDivergence(obj, faceVectorField)
@@ -217,21 +127,11 @@ classdef Mesh < MeshHW2
             laplaceMatrix = sparse(In,Jn,Sn, obj.numV,obj.numV); 
         end
         
-        function [fig, p] = RenderGradient(obj, vertexFunc)
+        function [fig, p, arrows] = RenderGradient(obj, vertexFunc)
             g = CalcGradient(obj, vertexFunc);
-            [fig, p] = RenderVectorField(obj, vertexFunc, g);
+            [fig, p, arrows] = RenderVectorField(obj, vertexFunc, g);
         end
         
         
-    end
-    
-    methods(Static)
-        function p = getProjection(x1, x2, x3)
-            % input: 3 vertices of a triangle, counterclockwise
-            % output: the projection of x1 unto x2x3
-            u = x1 - x2;
-            v = x3 - x2;
-            p = x2 + dot(u, v) / dot(v, v) * v;
-        end   
     end
 end
