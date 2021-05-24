@@ -81,7 +81,7 @@ classdef MeshBasic
             
         end
         
-        function [fig, p] = Render(obj, colors)    
+        function [fig, p] = Render(obj, colors)
             % @param colors: can be either one of the following
             % * a single color or [] - to paint all faces with that color
             % * a numeric vector of size obj.numF - to paint each face by its value
@@ -113,7 +113,34 @@ classdef MeshBasic
                 set(colorbar,'visible','off')
             end
             view(3);
+            if(all(obj.Vertices(:,3) == 0))
+                view(2);
+            end
             
+        end
+        
+        function fig = RenderSeveralFunctions(obj, functions)
+            % Render all of the functions
+            num = size(functions, 2);
+            figlist = zeros(num, 1);
+            for i=1:num
+                [figlist(i), p] = Render(obj, functions(:,i));
+            end
+            
+            % Create destination figure
+            fig = figure;
+            tcl = tiledlayout(fig,'flow');
+
+            for i = 1:numel(figlist)
+                figure(figlist(i));
+                ax=gca;
+                ax.Parent=tcl;
+                ax.Layout.Tile=i;
+            end
+            
+            for f=figlist
+                close(f);
+            end
         end
         
         function [fig, p] = RenderWireframe(obj, vertexColors)

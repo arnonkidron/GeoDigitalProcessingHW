@@ -53,9 +53,12 @@ classdef Mesh < MeshHW2
         
         function obj = ComputeCurvatures(obj)
             % Mean Curvature 
-            obj.MeanCurvature = vecnorm(obj.Laplacian, 2,2);
-%             signs = sign(dot(obj.Laplacian, obj.VertexNormals ,2));
-%             obj.MeanCurvature = obj.MeanCurvature .* signs;
+            Lx = obj.Laplacian * obj.Vertices;
+            obj.MeanCurvature = vecnorm(Lx, 2,2);
+            
+            % multiply by the sign of ⟨Lx, n⟩
+            signs = sign(dot(Lx, obj.VertexNormals ,2));
+            obj.MeanCurvature = obj.MeanCurvature .* signs;
             
             % Gaussian Curvature
             

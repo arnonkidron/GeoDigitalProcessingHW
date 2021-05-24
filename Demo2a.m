@@ -53,3 +53,11 @@ end
 
 
 
+
+% More ideas:
+% normals
+% center to point
+% only up
+% functions on grid
+
+
