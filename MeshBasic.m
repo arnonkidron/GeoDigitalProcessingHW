@@ -119,11 +119,8 @@ classdef MeshBasic
             
         end
         
-        function [fig, patches] = RenderSeveralFunctions(obj, functions, titles, shouldColorAxisBeSame)
+        function [fig, patches] = RenderSeveralFunctions(obj, functions, titles, edgeAlpha)
             % find color limits
-            if isempty(shouldColorAxisBeSame)
-                shouldColorAxisBeSame = true;
-            end
             cmin = min(functions, [], 'all');
             cmax = max(functions, [], 'all');
             
@@ -138,9 +135,8 @@ classdef MeshBasic
                 end
                 
                 [figlist(i), patches{i}] = Render(obj, functions(:,i));
-                if shouldColorAxisBeSame
-                    caxis([cmin cmax]);
-                end
+                set(patches{i}, 'EdgeAlpha', edgeAlpha);
+                caxis([cmin cmax]);
             end
             
             % Create destination figure

@@ -143,6 +143,10 @@ classdef Mesh < MeshHW2
             [fig, p, arrows] = RenderVectorField(obj, vertexFunc, g);
         end
         
+        function [fig, p, arrows] = RenderDivergence(obj, vectorField)
+            div = CalcDivergence(obj, vectorField);
+            [fig, p, arrows] = RenderVectorField(obj, div, vectorField);
+        end
         
     end
 end

@@ -1,16 +1,16 @@
 dir = "C:\Users\Arnon\Documents\GitHub\GeoDigitalProcessingHW\OFF models\";
 meshName = "sphere_s2.off";
-EDGE_ALPHA = 0.01;
+global EDGE_ALPHA;
+EDGE_ALPHA = 0.05;
 
 mesh = MeshBasic(dir + meshName);
 [~, patches] = RenderSphericalHarmonics(mesh);
-adjustEdgeAlpha(patches, EDGE_ALPHA);
 
 % meshSmoother = MeshSmoother(dir + meshName, max(k));
-% [~, patches] = RenderSomeEigenfunctions(meshSmoother, 25);
-% adjustEdgeAlpha(patches, EDGE_ALPHA);
+% [~, patches] = RenderSomeEigenfunctions(meshSmoother, 25, EDGE_ALPHA);
 
 function [fig, patches] = RenderSphericalHarmonics(mesh)
+    global EDGE_ALPHA;
     sphereCoords = getSphericalCoordinates(mesh.Vertices);
     max_degree = 4;
     A = ones(mesh.numV, (max_degree+1) ^2);
@@ -32,19 +32,19 @@ function [fig, patches] = RenderSphericalHarmonics(mesh)
         end
     end
     
-    [fig,patches] = RenderSeveralFunctions(mesh, A, titles, true);
+    [fig,patches] = RenderSeveralFunctions(mesh, A, titles, EDGE_ALPHA);
 end
 
-function adjustEdgeAlpha(patches, val)
-    for i = 1:numel(patches)
-        p = patches{i};
-        if isempty(p)
-            continue;
-        end
-        
-        set(p, 'EdgeAlpha', val);
-    end
-end
+% function adjustEdgeAlpha(patches, val)
+%     for i = 1:numel(patches)
+%         p = patches{i};
+%         if isempty(p)
+%             continue;
+%         end
+%         
+%         set(p, 'EdgeAlpha', val);
+%     end
+% end
 
 function sphereCoords = getSphericalCoordinates(cartesianCoords)
     x = cartesianCoords(:,1);

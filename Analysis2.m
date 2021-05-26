@@ -1,3 +1,5 @@
+global EDGE_ALPHA;
+EDGE_ALPHA = 0.15;
 
 for url = askUserForMultipleOFFfiles()
     k=10:20:310;
@@ -5,7 +7,7 @@ for url = askUserForMultipleOFFfiles()
     meshSmoother = MeshSmoother(url{1}, max(k));
     
     % render some eigenfunctions
-    RenderSomeEigenfunctions(meshSmoother, 9);
+    RenderSomeEigenfunctions(meshSmoother, 9, EDGE_ALPHA);
     
     % do the experiment with the hat function
     f = GetHatFunction(meshSmoother, 255);
@@ -17,6 +19,7 @@ for url = askUserForMultipleOFFfiles()
 end
 
 function experiment(meshSmoother, f, k)
+    global EDGE_ALPHA;
     size_k = size(k,2);
     
     errors = zeros(size_k,1);
@@ -35,7 +38,7 @@ function experiment(meshSmoother, f, k)
     RenderSeveralFunctions(meshSmoother.Mesh, ...
         [gs(:, indices_to_render) f], ...
         {titles{indices_to_render} "f"}, ...
-        false);
+        EDGE_ALPHA);
     
     figure
     plot(k, errors, 'o-');
