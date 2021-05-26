@@ -1,4 +1,4 @@
-classdef MeshPCA
+classdef MeshSmoother
     properties
         Mesh
         Matrix
@@ -7,7 +7,7 @@ classdef MeshPCA
     end
     
     methods
-        function obj = MeshPCA(url, max_k)
+        function obj = MeshSmoother(url, max_k)
             obj.Mesh = Mesh(url);
             obj.Matrix = obj.Mesh.CotangentWeights;
             
@@ -18,8 +18,9 @@ classdef MeshPCA
             end
         end
         
-        function fig = Render9Eigenfunctions(obj)
-            fig = RenderSeveralFunctions(obj.Mesh, obj.Eigenvectors(:,1:9), []);
+        function fig = RenderSomeEigenfunctions(obj, numEigenfunctions)
+            eigenfunctions = obj.Eigenvectors(:,1:numEigenfunctions);
+            fig = RenderSeveralFunctions(obj.Mesh, eigenfunctions, []);
         end
         
         function f = GetHatFunction(obj, i)

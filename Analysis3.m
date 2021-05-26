@@ -1,26 +1,35 @@
-
 dir = "C:\Users\Arnon\Documents\GitHub\GeoDigitalProcessingHW\OFF models\";
-mesh = MeshBasic(dir + "sphere_s1.off");
-sphereCoords = getSphericalCoordinates(mesh.Vertices);
+meshName = "sphere_s1.off";
+mesh = MeshBasic(dir + meshName);
+% RenderSphericalHarmonics(mesh);
 
-max_degree = 4;
-A = ones(mesh.numV, (max_degree+1) ^2);
-for l=0:max_degree
-    for m=0:l
-        theta = sphereCoords(:,1);
-        phi = sphereCoords(:,2);
-        harmonic = Ylm(l,m,theta,phi, false);
-        
-        index = m + l*(max_degree+1) + 1;
-        A(:, index) = harmonic;
+mesh = MeshSmoother(dir + meshName, 9);
+RenderSomeEigenfunctions(mesh, 9);
+
+function RenderSphericalHarmonics(mesh)
+    sphereCoords = getSphericalCoordinates(mesh.Vertices);
+    max_degree = 4;
+    A = ones(mesh.numV, (max_degree+1) ^2);
+    for l=0:max_degree
+        for m=0:l
+            theta = sphereCoords(:,1);
+            phi = sphereCoords(:,2);
+            harmonic = Ylm(l,m,theta,phi, false);
+
+            index = m + l*(max_degree+1) + 1;
+            A(:, index) = harmonic;
+        end
+        for m=l+1:max_degree
+            index = m + l*(max_degree+1) + 1;
+            A(:,index) = NaN;
+        end
     end
-    for m=l+1:max_degree
-        index = m + l*(max_degree+1) + 1;
-        A(:,index) = NaN;
-    end
+    
+    RenderSeveralFunctions(mesh, A, []);
 end
+    
+    
 
-RenderSeveralFunctions(mesh, A, []);
 
 function RenderSphericalHarmonic(mesh, sphereCoords, l, m)
     theta = sphereCoords(:,1);
