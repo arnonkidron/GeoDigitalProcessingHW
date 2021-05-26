@@ -19,7 +19,7 @@ classdef MeshPCA
         end
         
         function fig = Render9Eigenfunctions(obj)
-            fig = RenderSeveralFunctions(obj.Mesh, obj.Eigenvectors(:,1:9));
+            fig = RenderSeveralFunctions(obj.Mesh, obj.Eigenvectors(:,1:9), []);
         end
         
         function f = GetHatFunction(obj, i)

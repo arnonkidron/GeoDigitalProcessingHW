@@ -119,12 +119,23 @@ classdef MeshBasic
             
         end
         
-        function fig = RenderSeveralFunctions(obj, functions)
+        function fig = RenderSeveralFunctions(obj, functions, titles)
+            % find color limits
+            cmin = min(functions, [], 'all');
+            cmax = max(functions, [], 'all');
+            
             % Render all of the functions
             num = size(functions, 2);
             figlist = zeros(num, 1);
             for i=1:num
+                if all(isnan(functions(:,i)))
+                    figlist(i) = figure;
+                    continue
+                end
+                
                 [figlist(i), p] = Render(obj, functions(:,i));
+                set(p, 'EdgeAlpha', 0);
+                caxis([cmin cmax]);
             end
             
             % Create destination figure
@@ -133,6 +144,9 @@ classdef MeshBasic
 
             for i = 1:numel(figlist)
                 figure(figlist(i));
+                if(~isempty(titles))
+                    title(titles(i));
+                end
                 ax=gca;
                 ax.Parent=tcl;
                 ax.Layout.Tile=i;
