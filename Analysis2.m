@@ -3,13 +3,17 @@ for url = askUserForMultipleOFFfiles()
     k=10:20:310;
     
     meshSmoother = MeshSmoother(url{1}, max(k));
+    
+    % render some eigenfunctions
     RenderSomeEigenfunctions(meshSmoother, 9);
-
-%     f = GetHatFunction(meshSmoother, 255);
-%     experiment(meshSmoother, f, k);
-%     
-%     f = GetMaximalEigenfunction(meshSmoother);
-%     experiment(meshSmoother, f, k);
+    
+    % do the experiment with the hat function
+    f = GetHatFunction(meshSmoother, 255);
+    experiment(meshSmoother, f, k);
+    
+    % do the experiment with the maximal eigenfunction
+    f = GetMaximalEigenfunction(meshSmoother);
+    experiment(meshSmoother, f, k);
 end
 
 function experiment(meshSmoother, f, k)
@@ -30,7 +34,8 @@ function experiment(meshSmoother, f, k)
     indices_to_render = [1:3:16];
     RenderSeveralFunctions(meshSmoother.Mesh, ...
         [gs(:, indices_to_render) f], ...
-        {titles{indices_to_render} "f"});
+        {titles{indices_to_render} "f"}, ...
+        false);
     
     figure
     plot(k, errors, 'o-');

@@ -18,9 +18,9 @@ classdef MeshSmoother
             end
         end
         
-        function fig = RenderSomeEigenfunctions(obj, numEigenfunctions)
+        function [fig, patches] = RenderSomeEigenfunctions(obj, numEigenfunctions)
             eigenfunctions = obj.Eigenvectors(:,1:numEigenfunctions);
-            fig = RenderSeveralFunctions(obj.Mesh, eigenfunctions, []);
+            [fig, patches] = RenderSeveralFunctions(obj.Mesh, eigenfunctions, [], true);
         end
         
         function f = GetHatFunction(obj, i)

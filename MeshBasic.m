@@ -119,23 +119,28 @@ classdef MeshBasic
             
         end
         
-        function fig = RenderSeveralFunctions(obj, functions, titles)
+        function [fig, patches] = RenderSeveralFunctions(obj, functions, titles, shouldColorAxisBeSame)
             % find color limits
+            if isempty(shouldColorAxisBeSame)
+                shouldColorAxisBeSame = true;
+            end
             cmin = min(functions, [], 'all');
             cmax = max(functions, [], 'all');
             
             % Render all of the functions
             num = size(functions, 2);
             figlist = zeros(num, 1);
+            patches = cell(num, 1);
             for i=1:num
                 if all(isnan(functions(:,i)))
-                    figlist(i) = figure;
+                    figlist(i) = figure('visible', 'off');
                     continue
                 end
                 
-                [figlist(i), p] = Render(obj, functions(:,i));
-                set(p, 'EdgeAlpha', 0);
-                caxis([cmin cmax]);
+                [figlist(i), patches{i}] = Render(obj, functions(:,i));
+                if shouldColorAxisBeSame
+                    caxis([cmin cmax]);
+                end
             end
             
             % Create destination figure
@@ -150,10 +155,8 @@ classdef MeshBasic
                 ax=gca;
                 ax.Parent=tcl;
                 ax.Layout.Tile=i;
-            end
-            
-            for f=figlist
-                close(f);
+                
+                close(figlist(i));
             end
         end
         

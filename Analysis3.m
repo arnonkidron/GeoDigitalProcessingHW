@@ -1,15 +1,20 @@
 dir = "C:\Users\Arnon\Documents\GitHub\GeoDigitalProcessingHW\OFF models\";
-meshName = "sphere_s1.off";
+meshName = "sphere_s2.off";
+EDGE_ALPHA = 0.01;
+
 mesh = MeshBasic(dir + meshName);
-% RenderSphericalHarmonics(mesh);
+[~, patches] = RenderSphericalHarmonics(mesh);
+adjustEdgeAlpha(patches, EDGE_ALPHA);
 
-mesh = MeshSmoother(dir + meshName, 9);
-RenderSomeEigenfunctions(mesh, 9);
+% meshSmoother = MeshSmoother(dir + meshName, max(k));
+% [~, patches] = RenderSomeEigenfunctions(meshSmoother, 25);
+% adjustEdgeAlpha(patches, EDGE_ALPHA);
 
-function RenderSphericalHarmonics(mesh)
+function [fig, patches] = RenderSphericalHarmonics(mesh)
     sphereCoords = getSphericalCoordinates(mesh.Vertices);
     max_degree = 4;
     A = ones(mesh.numV, (max_degree+1) ^2);
+    titles = cell((max_degree+1) ^2, 1);
     for l=0:max_degree
         for m=0:l
             theta = sphereCoords(:,1);
@@ -18,6 +23,8 @@ function RenderSphericalHarmonics(mesh)
 
             index = m + l*(max_degree+1) + 1;
             A(:, index) = harmonic;
+            
+            titles{index} = sprintf("l=%d, m=%d", l, m);
         end
         for m=l+1:max_degree
             index = m + l*(max_degree+1) + 1;
@@ -25,25 +32,18 @@ function RenderSphericalHarmonics(mesh)
         end
     end
     
-    RenderSeveralFunctions(mesh, A, []);
+    [fig,patches] = RenderSeveralFunctions(mesh, A, titles, true);
 end
-    
-    
 
-
-function RenderSphericalHarmonic(mesh, sphereCoords, l, m)
-    theta = sphereCoords(:,1);
-    phi = sphereCoords(:,2);
-    harmonic = Ylm(l,m,theta,phi);
-%     rgb2 = [(real(harmonic) + 1) / 2, zeros(mesh.numV, 1), (imag(harmonic) + 1) / 2];
-%     
-%     rgb = mat2rgbCplx(harmonic, 1, 1);
-%     rgb = reshape(rgb,[mesh.numV, 3]);
-%     %Render(mesh, rgb);
-    
-    n = vecnorm(harmonic,2,2);
-    Render(mesh, n);
-    
+function adjustEdgeAlpha(patches, val)
+    for i = 1:numel(patches)
+        p = patches{i};
+        if isempty(p)
+            continue;
+        end
+        
+        set(p, 'EdgeAlpha', val);
+    end
 end
 
 function sphereCoords = getSphericalCoordinates(cartesianCoords)
