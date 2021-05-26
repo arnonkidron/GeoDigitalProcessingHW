@@ -12,7 +12,7 @@ classdef MeshSmoother
             obj.Matrix = obj.Mesh.CotangentWeights;
             
             [obj.Eigenvectors, obj.Eigenvalues, failure] = ...
-                eigs(obj.Matrix, max_k, 'lm');
+                eigs(obj.Matrix, max_k, 'sm');
             if(failure)
                 disp("Warning: not all eigenvalues have converged");
             end
@@ -29,7 +29,7 @@ classdef MeshSmoother
         end
         
         function f = GetMaximalEigenfunction(obj)
-            [f, ~] = eigs(obj.Matrix, 1, 'sm');
+            [f, ~] = eigs(obj.Matrix, 1, 'lm');
         end
         
         function [g, error] = ProjectAndBack(obj, f, k)
